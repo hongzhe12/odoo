@@ -1,0 +1,36 @@
+services:
+     odoo:
+         container_name: odoo
+         image: odoo:15.0
+         volumes:
+             - ./addons-extra:/mnt/extra-addons
+             - ./etc/odoo:/etc/odoo
+             - odoo-web-data:/var/lib/odoo
+         ports:
+             - "8069:8069"
+         depends_on:
+             - postgres
+     postgres:
+         container_name: postgres
+         image: postgres:14
+         environment:
+             - POSTGRES_DB=postgres
+             - POSTGRES_PASSWORD=odoo
+             - POSTGRES_USER=odoo
+             - PGDATA=/var/lib/postgresql/data/pgdata
+         volumes:
+             - odoo-db-data:/var/lib/postgresql/data/pgdata
+
+     nginx:
+         container_name: nginx
+         build:
+             context: ./nginx
+             dockerfile: Dockerfile
+         restart: always
+         ports:
+             - "80:80"
+         volumes:
+             - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+volumes:
+ odoo-web-data:
+ odoo-db-data:
